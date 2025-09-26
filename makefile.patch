@@ -1,0 +1,14 @@
+diff --git a/makefile b/makefile
+index 6dc5af8..5e0956a 100644
+--- a/makefile
++++ b/makefile
+@@ -143,6 +143,9 @@ libic.a: $(LIB)
+ libic.so : $(LIB)
+ 	$(CC) -shared $+ -o $@
+ 
++ic.dll: $(LIB)
++	$(CC) -shared $+ -o $@ -Wl,--out-implib,ic.lib
++
+ JAVA_SUBDIR = java
+ 
+ jic.h: $(JAVA_SUBDIR)/jic.java
