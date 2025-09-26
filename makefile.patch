@@ -1,13 +1,22 @@
 diff --git a/makefile b/makefile
-index 6dc5af8..5e0956a 100644
+index 6dc5af8..b8cd779 100644
 --- a/makefile
 +++ b/makefile
+@@ -32,7 +32,7 @@ DIRINC ?= $(PREFIX)/include
+ DIRLIB ?= $(PREFIX)/lib
+ SRC ?= lib/
+ 
+-OPT=-fstrict-aliasing -fPIC
++OPT=-fstrict-aliasing -fPIC -fvisibility=default
+ 
+ #------- OS/ARCH -------------------
+ ifneq (,$(filter Windows%,$(OS)))
 @@ -143,6 +143,9 @@ libic.a: $(LIB)
  libic.so : $(LIB)
  	$(CC) -shared $+ -o $@
  
-+ic.dll: $(LIB)
-+	$(CC) -shared $+ -o $@ -Wl,--out-implib,ic.lib
++libic.dylib : $(LIB)
++	$(CC) -dynamiclib -Wl,-all_load $+ -o $@
 +
  JAVA_SUBDIR = java
  
