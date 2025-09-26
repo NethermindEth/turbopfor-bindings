@@ -15,13 +15,13 @@ namespace Nethermind.TurboPFor
         static TurboPFor() => AssemblyLoadContext.Default.ResolvingUnmanagedDll += OnResolvingUnmanagedDll;
 
         [DllImport(LibraryName)]
-        public extern unsafe static nuint p4nd1enc128v32(int* @in, nuint n, byte* @out);
+        public static extern unsafe nuint p4nd1enc128v32(int* @in, nuint n, byte* @out);
         [DllImport(LibraryName)]
-        public extern unsafe static nuint p4nd1dec128v32(byte* @in, nuint n, int* @out);
+        public static extern unsafe nuint p4nd1dec128v32(byte* @in, nuint n, int* @out);
         [DllImport(LibraryName)]
-        public extern unsafe static nuint p4nd1enc256v32(int* @in, nuint n, byte* @out);
+        public static extern unsafe nuint p4nd1enc256v32(int* @in, nuint n, byte* @out);
         [DllImport(LibraryName)]
-        public extern unsafe static nuint p4nd1dec256v32(byte* @in, nuint n, int* @out);
+        public static extern unsafe nuint p4nd1dec256v32(byte* @in, nuint n, int* @out);
 
         private static IntPtr OnResolvingUnmanagedDll(Assembly context, string name)
         {
