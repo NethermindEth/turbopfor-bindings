@@ -50,7 +50,7 @@ jobs:
     strategy:
       matrix:
         arch: [arm64, x64]
-    runs-on: macos-latest
+    runs-on: ${{ matrix.arch == 'arm64' && 'macos-latest' || 'macos-13' }}
     env:
       ARCH: ${{ matrix.arch == 'arm64' && 'arm64' || 'x86_64' }}
     steps:
@@ -128,9 +128,9 @@ jobs:
         run: |
           mv -f linux-arm64/libic.so linux-arm64/native/libic.so
           mv -f linux-x64/libic.so linux-x64/native/libic.so
-          mv -f osx-arm64/libic.so osx-arm64/native/libic.so
-          mv -f osx-x64/libic.so osx-x64/native/libic.so
-          mv -f win-arm64/ic.dll win-arm64/native/ic.dll
+          mv -f osx-arm64/libic.dylib osx-arm64/native/libic.dylib
+          mv -f osx-x64/libic.dylib osx-x64/native/libic.dylib
+          # mv -f win-arm64/ic.dll win-arm64/native/ic.dll
           mv -f win-x64/ic.dll win-x64/native/ic.dll
 
       - name: Create a pull request
