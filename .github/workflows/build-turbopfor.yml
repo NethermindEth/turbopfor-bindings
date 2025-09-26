@@ -61,13 +61,15 @@ jobs:
           ref: ${{ github.event.inputs.ref }}
 
       - name: Build
-        run: make libic.so
+        run: |
+          make libic.so
+          mv libic.so libic.dylib
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: osx-${{ matrix.arch }}
-          path: libic.so
+          path: libic.dylib
           retention-days: ${{ env.RETENTION }}
           if-no-files-found: error
 
