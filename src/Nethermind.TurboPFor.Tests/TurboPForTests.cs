@@ -15,7 +15,7 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
         public override string ToString() => Name;
     }
 
-    public static unsafe Algorithm[] Algorithms() =>
+    private static Algorithm[] Algorithms() =>
     [
         new("p4nd1*256v32", TurboPFor.p4nd1enc256v32, TurboPFor.p4nd1dec256v32),
         new("p4nd1*128v32", TurboPFor.p4nd1enc128v32, TurboPFor.p4nd1dec128v32),
@@ -123,13 +123,9 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
         }
     }
 
-    public unsafe delegate nuint CompressFunc(int* @in, nuint n, byte* @out);
+    public delegate nuint CompressFunc(ReadOnlySpan<int> @in, nuint n, Span<byte> @out);
 
-    public unsafe delegate nuint DecompressFunc(byte* @in, nuint n, int* @out);
-
-    private unsafe delegate byte* CompressBlockFunc(int* @in, int n, byte* @out, int start);
-
-    private unsafe delegate byte* DecompressBlockFunc(byte* @in, int n, int* @out, int start);
+    public delegate nuint DecompressFunc(ReadOnlySpan<byte> @in, nuint n, Span<int> @out);
 
     private void Verify(int[] values)
     {
@@ -142,61 +138,23 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
         Assert.That(decompressed, Is.EqualTo(values));
     }
 
-    private static unsafe byte[] Compress(int[] values, CompressBlockFunc compressFunc, int deltaStart = 0)
+    private static byte[] Compress(int[] values, CompressFunc compressFunc)
     {
         var buffer = new byte[values.Length * sizeof(int) + 1024];
 
-        int resultLength;
-        fixed (int* inputPtr = values)
-        fixed (byte* resultPtr = buffer)
-        {
-            var endPtr = compressFunc(inputPtr, values.Length, resultPtr, deltaStart);
-            resultLength = (int) (endPtr - (long) resultPtr);
-        }
+        var resultLength = (int) compressFunc(values, (nuint) values.Length, buffer);
 
         TestContext.Out.WriteLine($"Compressed: {resultLength} bytes");
         return buffer[..resultLength];
     }
 
-    private static unsafe int[] Decompress(byte[] data, int count, DecompressBlockFunc decompressFunc, int deltaStart = 0)
-    {
-        var buffer = new int[count + 1];
-
-        fixed (byte* inputPtr = data)
-        fixed (int* resultPtr = buffer)
-        {
-            var endPtr = decompressFunc(inputPtr, count, resultPtr, deltaStart);
-        }
-
-        return buffer[..count];
-    }
-
-    private static unsafe byte[] Compress(int[] values, CompressFunc compressFunc)
-    {
-        var buffer = new byte[values.Length * sizeof(int) + 1024];
-
-        int resultLength;
-        fixed (int* inputPtr = values)
-        fixed (byte* resultPtr = buffer)
-        {
-            resultLength = (int) compressFunc(inputPtr, (nuint) values.Length, resultPtr);
-        }
-
-        TestContext.Out.WriteLine($"Compressed: {resultLength} bytes");
-        return buffer[..resultLength];
-    }
-
-    private static unsafe int[] Decompress(byte[] data, int count, DecompressFunc decompressFunc)
+    private static int[] Decompress(byte[] data, int count, DecompressFunc decompressFunc)
     {
         var buffer = new int[count + 1];
         for (var i = count; i < buffer.Length; i++)
             buffer[i] = -1;
 
-        fixed (byte* inputPtr = data)
-        fixed (int* resultPtr = buffer)
-        {
-            _ = decompressFunc(inputPtr, (nuint) count, resultPtr);
-        }
+        _ = decompressFunc(data, (nuint) count, buffer);
 
         for (var i = count; i < buffer.Length; i++) Assert.That(buffer[i], Is.EqualTo(-1));
 
