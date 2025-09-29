@@ -21,29 +21,29 @@ env:
   RETENTION: 7
 
 jobs:
-  # build-linux:
-  #   name: Linux build
-  #   strategy:
-  #     matrix:
-  #       arch: [arm64, x64]
-  #   runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-22.04' }}
-  #   steps:
-  #     - name: Check out TurboPFor repository
-  #       uses: actions/checkout@v5
-  #       with:
-  #         repository: powturbo/TurboPFor-Integer-Compression
-  #         ref: ${{ github.event.inputs.ref }}
+  build-linux:
+    name: Linux build
+    strategy:
+      matrix:
+        arch: [arm64, x64]
+    runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-22.04' }}
+    steps:
+      - name: Check out TurboPFor repository
+        uses: actions/checkout@v5
+        with:
+          repository: powturbo/TurboPFor-Integer-Compression
+          ref: ${{ github.event.inputs.ref }}
 
-  #     - name: Build
-  #       run: make libic.so
+      - name: Build
+        run: make libic.so
 
-  #     - name: Upload artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: linux-${{ matrix.arch }}
-  #         path: libic.so
-  #         retention-days: ${{ env.RETENTION }}
-  #         if-no-files-found: error
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.arch }}
+          path: libic.so
+          retention-days: ${{ env.RETENTION }}
+          if-no-files-found: error
 
   build-macos:
     name: macOS build
@@ -84,41 +84,41 @@ jobs:
           retention-days: ${{ env.RETENTION }}
           if-no-files-found: error
 
-  # build-windows:
-  #   name: Windows build
-  #   strategy:
-  #     matrix:
-  #       arch: [x64]
-  #   runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-2022' }}
-  #   steps:
-  #     - name: Check out TurboPFor repository
-  #       uses: actions/checkout@v5
-  #       with:
-  #         repository: powturbo/TurboPFor-Integer-Compression
-  #         ref: ${{ github.event.inputs.ref }}
-  #         path: turbopfor
+  build-windows:
+    name: Windows build
+    strategy:
+      matrix:
+        arch: [x64]
+    runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-2022' }}
+    steps:
+      - name: Check out TurboPFor repository
+        uses: actions/checkout@v5
+        with:
+          repository: powturbo/TurboPFor-Integer-Compression
+          ref: ${{ github.event.inputs.ref }}
+          path: turbopfor
 
-  #     - name: Check out turbopfor-bindings repository
-  #       uses: actions/checkout@v5
-  #       with:
-  #         path: bindings
+      - name: Check out turbopfor-bindings repository
+        uses: actions/checkout@v5
+        with:
+          path: bindings
 
-  #     - name: Patch Makefile
-  #       working-directory: turbopfor
-  #       run: git apply ../bindings/makefile.patch
+      - name: Patch Makefile
+        working-directory: turbopfor
+        run: git apply ../bindings/makefile.patch
 
-  #     - name: Build
-  #       working-directory: turbopfor
-  #       run: |
-  #         make ic.dll
+      - name: Build
+        working-directory: turbopfor
+        run: |
+          make ic.dll
 
-  #     - name: Upload artifact
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: win-${{ matrix.arch }}
-  #         path: turbopfor/ic.dll
-  #         retention-days: ${{ env.RETENTION }}
-  #         if-no-files-found: error
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-${{ matrix.arch }}
+          path: turbopfor/ic.dll
+          retention-days: ${{ env.RETENTION }}
+          if-no-files-found: error
 
   create-pr:
     name: Create a pull request
