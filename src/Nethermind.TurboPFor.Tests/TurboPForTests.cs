@@ -30,7 +30,7 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
         yield return 1;
         yield return 10;
 
-        for (var i = 32; i <= 1024; i <<= 1)
+        for (var i = 32; i <= 2048; i <<= 1)
         {
             yield return i - 1;
             yield return i;
@@ -133,6 +133,9 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
 
     private void Verify(int[] values)
     {
+        if (!TurboPFor.Supports256Blocks && algorithm.Name.Contains("256"))
+            Assert.Ignore("256 blocks are not supported on this platform.");
+
         var compressed = Compress(values, algorithm.Compress);
         var decompressed = Decompress(compressed, values.Length, algorithm.Decompress);
 
@@ -157,7 +160,7 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
 
     private static unsafe int[] Decompress(byte[] data, int count, DecompressBlockFunc decompressFunc, int deltaStart = 0)
     {
-        var buffer = new int[count * 2];
+        var buffer = new int[count + 1];
 
         fixed (byte* inputPtr = data)
         fixed (int* resultPtr = buffer)
@@ -185,7 +188,7 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
 
     private static unsafe int[] Decompress(byte[] data, int count, DecompressFunc decompressFunc)
     {
-        var buffer = new int[count * 2];
+        var buffer = new int[count + 1];
         for (var i = count; i < buffer.Length; i++)
             buffer[i] = -1;
 
