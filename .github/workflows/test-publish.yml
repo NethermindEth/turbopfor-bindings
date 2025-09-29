@@ -2,6 +2,7 @@ name: Test / Publish
 
 on:
   pull_request:
+    branches: [main]
   push:
     branches: [main]
   release:
@@ -17,12 +18,21 @@ on:
           - Staging
           - Production
 
+env:
+  BUILD_CONFIG: release
+
 jobs:
-  test-publish:
-    name: Test / Publish
-    env:
-      BUILD_CONFIG: release
-    runs-on: ubuntu-latest
+  test:
+    name: Test
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-13
+          - windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
@@ -40,11 +50,24 @@ jobs:
         working-directory: src/Nethermind.TurboPFor.Tests
         run: dotnet run -c $BUILD_CONFIG --no-restore
 
+  publish:
+    name: Publish
+    needs: test
+    if: needs.test.result == 'success' && (github.event_name == 'workflow_dispatch' && github.event.inputs.publish != 'No' || github.event_name == 'release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+        with:
+          lfs: true
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v5
+
       - name: Publish
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish != 'No' || github.event_name == 'release'
         working-directory: src
         run: |
-          dotnet pack ./Nethermind.TurboPFor -c $BUILD_CONFIG --no-build
+          dotnet pack ./Nethermind.TurboPFor -c $BUILD_CONFIG
           dotnet nuget push ./artifacts/package/$BUILD_CONFIG/*.nupkg \
             -k ${{ github.event.inputs.publish == 'Staging' && secrets.NUGETTEST_API_KEY || secrets.NUGET_API_KEY }} \
             -s ${{ github.event.inputs.publish == 'Staging' && 'https://apiint.nugettest.org/v3/index.json' || 'https://api.nuget.org/v3/index.json' }}
