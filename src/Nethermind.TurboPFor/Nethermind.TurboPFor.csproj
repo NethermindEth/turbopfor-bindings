@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <RootNamespace>Nethermind.Crypto</RootNamespace>
+    <RootNamespace>Nethermind.TurboPFor</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
