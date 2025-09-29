@@ -53,7 +53,7 @@ jobs:
   publish:
     name: Publish
     needs: test
-    if: needs.test.result == 'success' && (github.event_name == 'workflow_dispatch' && github.event.inputs.publish != 'No' || github.event_name == 'release')
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish != 'No' || github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
