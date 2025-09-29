@@ -50,7 +50,7 @@ jobs:
     strategy:
       matrix:
         arch: [arm64, x64]
-    runs-on: macos-latest
+    runs-on: ${{ matrix.arch == 'arm64' && 'macos-latest' || 'macos-13' }}
     env:
       ARCH: ${{ matrix.arch == 'arm64' && 'arm64' || 'x86_64' }}
     steps:
@@ -59,15 +59,26 @@ jobs:
         with:
           repository: powturbo/TurboPFor-Integer-Compression
           ref: ${{ github.event.inputs.ref }}
+          path: turbopfor
+
+      - name: Check out turbopfor-bindings repository
+        uses: actions/checkout@v5
+        with:
+          path: bindings
+
+      - name: Patch Makefile
+        working-directory: turbopfor
+        run: git apply ../bindings/makefile.patch
 
       - name: Build
-        run: make libic.so
+        working-directory: turbopfor
+        run: make libic.dylib
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: osx-${{ matrix.arch }}
-          path: libic.so
+          path: turbopfor/libic.dylib
           retention-days: ${{ env.RETENTION }}
           if-no-files-found: error
 
@@ -75,7 +86,7 @@ jobs:
     name: Windows build
     strategy:
       matrix:
-        arch: [arm64, x64]
+        arch: [x64]
     runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-2022' }}
     steps:
       - name: Check out TurboPFor repository
@@ -96,8 +107,7 @@ jobs:
 
       - name: Build
         working-directory: turbopfor
-        run: |
-          make ic.dll
+        run: make ic.dll
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -126,9 +136,9 @@ jobs:
         run: |
           mv -f linux-arm64/libic.so linux-arm64/native/libic.so
           mv -f linux-x64/libic.so linux-x64/native/libic.so
-          mv -f osx-arm64/libic.so osx-arm64/native/libic.so
-          mv -f osx-x64/libic.so osx-x64/native/libic.so
-          mv -f win-arm64/ic.dll win-arm64/native/ic.dll
+          mv -f osx-arm64/libic.dylib osx-arm64/native/libic.dylib
+          mv -f osx-x64/libic.dylib osx-x64/native/libic.dylib
+          # mv -f win-arm64/ic.dll win-arm64/native/ic.dll
           mv -f win-x64/ic.dll win-x64/native/ic.dll
 
       - name: Create a pull request

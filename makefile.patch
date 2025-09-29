@@ -1,14 +1,25 @@
 diff --git a/makefile b/makefile
-index 6dc5af8..5e0956a 100644
+index 6dc5af8..650b8e3 100644
 --- a/makefile
 +++ b/makefile
-@@ -143,6 +143,9 @@ libic.a: $(LIB)
+@@ -143,6 +143,12 @@ libic.a: $(LIB)
  libic.so : $(LIB)
  	$(CC) -shared $+ -o $@
  
-+ic.dll: $(LIB)
-+	$(CC) -shared $+ -o $@ -Wl,--out-implib,ic.lib
++libic.dylib : $(LIB)
++	$(CC) -dynamiclib $+ -o $@
++
++ic.dll : $(LIB)
++	$(CC) -shared -Wl,--out-implib,ic.lib $+ -o $@
 +
  JAVA_SUBDIR = java
  
  jic.h: $(JAVA_SUBDIR)/jic.java
+@@ -183,6 +189,6 @@ clean:
+ 	rm icapp.exe
+ else
+ clean:
+-	@find . -type f -name "*\.o" -delete -or -name "*\~" -delete -or -name "core" -delete -or -name "icbench" -delete -or -name "libic.a" -delete
++	@find . -type f -name "*\.o" -delete -or -name "*\~" -delete -or -name "core" -delete -or -name "icbench" -delete -or -name "libic.a" -delete -or -name "libic.dylib" -delete -or -name "libic.so" -delete -or -name "ic.dll" -delete
+ 	@find . -type f -name "icbench" -delete -or -name "idxqry" -delete -or -name "idxseg" -delete -or -name "idxcr" -delete -or -name "icapp" -delete
+ endif
