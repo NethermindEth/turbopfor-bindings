@@ -9,8 +9,8 @@
     <Description>C# bindings for TurboPFor integer compression library</Description>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageId>Nethermind.TurboPFor</PackageId>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageId>Nethermind.TurboPForBindings</PackageId>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://nethermind.io</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>compression</PackageTags>
