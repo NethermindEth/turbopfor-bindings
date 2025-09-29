@@ -18,9 +18,6 @@ on:
           - Staging
           - Production
 
-env:
-  BUILD_CONFIG: release
-
 jobs:
   test:
     name: Test
@@ -42,13 +39,9 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v5
 
-      - name: Install dependencies
-        working-directory: src
-        run: dotnet restore
-
       - name: Test
         working-directory: src/Nethermind.TurboPFor.Tests
-        run: dotnet run -c $BUILD_CONFIG --no-restore
+        run: dotnet run -c release
 
   publish:
     name: Publish
@@ -67,7 +60,7 @@ jobs:
       - name: Publish
         working-directory: src
         run: |
-          dotnet pack ./Nethermind.TurboPFor -c $BUILD_CONFIG
-          dotnet nuget push ./artifacts/package/$BUILD_CONFIG/*.nupkg \
+          dotnet pack ./Nethermind.TurboPFor -c release
+          dotnet nuget push ./artifacts/package/release/*.nupkg \
             -k ${{ github.event.inputs.publish == 'Staging' && secrets.NUGETTEST_API_KEY || secrets.NUGET_API_KEY }} \
             -s ${{ github.event.inputs.publish == 'Staging' && 'https://apiint.nugettest.org/v3/index.json' || 'https://api.nuget.org/v3/index.json' }}
