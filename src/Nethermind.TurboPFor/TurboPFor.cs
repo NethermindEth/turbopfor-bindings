@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
+using System.Runtime.Intrinsics.X86;
 
 namespace Nethermind.TurboPFor
 {
@@ -11,6 +12,11 @@ namespace Nethermind.TurboPFor
     {
         private const string LibraryName = "ic";
         private static string? _libraryFallbackPath;
+
+        /// <summary>
+        /// If <c>false</c>, methods using 256 blocks will throw an exception.
+        /// </summary>
+        public static bool Supports256Blocks => Avx2.IsSupported;
 
         static TurboPFor() => AssemblyLoadContext.Default.ResolvingUnmanagedDll += OnResolvingUnmanagedDll;
 
