@@ -7,21 +7,22 @@ namespace Nethermind.TurboPFor
     // https://github.com/brettwooldridge/TurboPFor#function-syntax
     // https://github.com/brettwooldridge/TurboPFor/blob/master/java/jic.java
     // https://github.com/brettwooldridge/TurboPFor/blob/master/vp4.h
-    public static class TurboPFor
+    public static partial class TurboPFor
     {
         private const string LibraryName = "ic";
         private static string? _libraryFallbackPath;
 
         static TurboPFor() => AssemblyLoadContext.Default.ResolvingUnmanagedDll += OnResolvingUnmanagedDll;
 
-        [DllImport(LibraryName)]
-        public static extern unsafe nuint p4nd1enc128v32(int* @in, nuint n, byte* @out);
-        [DllImport(LibraryName)]
-        public static extern unsafe nuint p4nd1dec128v32(byte* @in, nuint n, int* @out);
-        [DllImport(LibraryName)]
-        public static extern unsafe nuint p4nd1enc256v32(int* @in, nuint n, byte* @out);
-        [DllImport(LibraryName)]
-        public static extern unsafe nuint p4nd1dec256v32(byte* @in, nuint n, int* @out);
+        [LibraryImport(LibraryName)]
+        public static unsafe partial nuint p4nd1enc128v32(int* @in, nuint n, byte* @out);
+        [LibraryImport(LibraryName)]
+        public static unsafe partial nuint p4nd1dec128v32(byte* @in, nuint n, int* @out);
+
+        [LibraryImport(LibraryName)]
+        public static unsafe partial nuint p4nd1enc256v32(int* @in, nuint n, byte* @out);
+        [LibraryImport(LibraryName)]
+        public static unsafe partial nuint p4nd1dec256v32(byte* @in, nuint n, int* @out);
 
         private static IntPtr OnResolvingUnmanagedDll(Assembly context, string name)
         {
