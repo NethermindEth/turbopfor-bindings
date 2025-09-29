@@ -3,7 +3,7 @@ name: Test / Publish
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [fix/fallback-to-block-128]
   release:
     types: [published]
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
     name: Test / Publish
     env:
       BUILD_CONFIG: release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04-arm
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
