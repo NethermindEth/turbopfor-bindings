@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Nethermind.TurboPForBindings.Tests\Nethermind.TurboPForBindings.Tests.csproj" />
+  <Project Path="Nethermind.TurboPForBindings\Nethermind.TurboPForBindings.csproj" />
+</Solution>
