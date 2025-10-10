@@ -1,4 +1,0 @@
-<Solution>
-  <Project Path="Nethermind.TurboPFor.Tests/Nethermind.TurboPFor.Tests.csproj" />
-  <Project Path="Nethermind.TurboPFor/Nethermind.TurboPFor.csproj" />
-</Solution>
