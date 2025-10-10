@@ -8,7 +8,7 @@ namespace Nethermind.TurboPFor
     // https://github.com/brettwooldridge/TurboPFor#function-syntax
     // https://github.com/brettwooldridge/TurboPFor/blob/master/java/jic.java
     // https://github.com/brettwooldridge/TurboPFor/blob/master/vp4.h
-    public static partial class TurboPFor
+    public static partial class TurboPForBindings
     {
         private const string LibraryName = "ic";
         private static string? _libraryFallbackPath;
@@ -18,7 +18,7 @@ namespace Nethermind.TurboPFor
         /// </summary>
         public static bool Supports256Blocks => Avx2.IsSupported;
 
-        static TurboPFor() => AssemblyLoadContext.Default.ResolvingUnmanagedDll += OnResolvingUnmanagedDll;
+        static TurboPForBindings() => AssemblyLoadContext.Default.ResolvingUnmanagedDll += OnResolvingUnmanagedDll;
 
         [LibraryImport(LibraryName)]
         public static partial nuint p4nd1enc128v32(ReadOnlySpan<int> @in, nuint n, Span<byte> @out);

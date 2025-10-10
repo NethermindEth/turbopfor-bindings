@@ -7,7 +7,7 @@ namespace Nethermind.TurboPFor.Tests;
 
 [Parallelizable(ParallelScope.All)]
 [TestFixtureSource(nameof(Algorithms))]
-public class TurboPForTests(TurboPForTests.Algorithm algorithm)
+public class TurboPForBindingsTests(TurboPForBindingsTests.Algorithm algorithm)
 {
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
     public record Algorithm(string Name, CompressFunc Compress, DecompressFunc Decompress)
@@ -17,8 +17,8 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
 
     private static Algorithm[] Algorithms() =>
     [
-        new("p4nd1*256v32", TurboPFor.p4nd1enc256v32, TurboPFor.p4nd1dec256v32),
-        new("p4nd1*128v32", TurboPFor.p4nd1enc128v32, TurboPFor.p4nd1dec128v32),
+        new("p4nd1*256v32", TurboPForBindings.p4nd1enc256v32, TurboPForBindings.p4nd1dec256v32),
+        new("p4nd1*128v32", TurboPForBindings.p4nd1enc128v32, TurboPForBindings.p4nd1dec128v32),
 
         // Mixed version - don't work
         //new("p4nd1enc256v32 / p4nd1dec128v32", TurboPFor.p4nd1enc256v32, TurboPFor.p4nd1dec128v32),
@@ -129,7 +129,7 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
 
     private void Verify(int[] values)
     {
-        if (!TurboPFor.Supports256Blocks && algorithm.Name.Contains("256"))
+        if (!TurboPForBindings.Supports256Blocks && algorithm.Name.Contains("256"))
             Assert.Ignore("256 blocks are not supported on this platform.");
 
         var compressed = Compress(values, algorithm.Compress);
