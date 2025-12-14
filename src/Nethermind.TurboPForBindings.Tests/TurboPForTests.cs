@@ -2,28 +2,36 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 namespace Nethermind.TurboPForBindings.Tests;
 
-[Parallelizable(ParallelScope.All)]
-[TestFixtureSource(nameof(Algorithms))]
-public class TurboPForTests(TurboPForTests.Algorithm algorithm)
+public abstract class TurboPForTestsBase<T>(TurboPForTestsBase<T>.Algorithm algorithm)
+    where T : IBinaryInteger<T>, IMinMaxValue<T>
 {
+    public delegate nuint CompressFunc(ReadOnlySpan<T> @in, nuint n, Span<byte> @out);
+
+    public delegate nuint DecompressFunc(ReadOnlySpan<byte> @in, nuint n, Span<T> @out);
+
+    private static readonly int TBits = int.CreateChecked(T.PopCount(T.AllBitsSet));
+    private static readonly int TBytes = TBits / 8;
+
     [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
-    public record Algorithm(string Name, CompressFunc Compress, DecompressFunc Decompress)
+    public record Algorithm(string Name, CompressFunc Compress, DecompressFunc Decompress, int BlockSize)
     {
         public override string ToString() => Name;
     }
 
-    private static Algorithm[] Algorithms() =>
-    [
-        new("p4nd1*256v32", TurboPFor.p4nd1enc256v32, TurboPFor.p4nd1dec256v32),
-        new("p4nd1*128v32", TurboPFor.p4nd1enc128v32, TurboPFor.p4nd1dec128v32),
+    private static IEnumerable<T> Starts()
+    {
+        T half = T.MaxValue / T.CreateChecked(2);
+        T halfSize = T.MaxValue >> (TBits / 2);
 
-        // Mixed version - don't work
-        //new("p4nd1enc256v32 / p4nd1dec128v32", TurboPFor.p4nd1enc256v32, TurboPFor.p4nd1dec128v32),
-        //new("p4nd1enc128v32 / p4nd1dec256v32", TurboPFor.p4nd1enc128v32, TurboPFor.p4nd1dec256v32)
-    ];
+        yield return T.Zero;
+        yield return halfSize;
+        yield return half;
+        yield return T.MaxValue - halfSize;
+    }
 
     private static IEnumerable<int> Lengths()
     {
@@ -48,34 +56,34 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
     }
 
     [Test]
-    [Combinatorial]
     public void Increasing_Consecutive(
+        [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length
     )
     {
-        var values = Enumerable.Range(0, length).ToArray();
+        T[] values = Range(start, length).ToArray();
         Verify(values);
     }
 
     [Test]
-    [Combinatorial]
     public void Increasing_Consecutive_Negative(
+        [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length
     )
     {
-        var values = Enumerable.Range(0, length).Reverse().Select(x => -x).ToArray();
+        T[] values = Range(start, length).Reverse().Select(x => -x).ToArray();
         Verify(values);
     }
 
     [Test]
-    [Combinatorial]
     public void Increasing_Random(
         [Values(42, 4242, 424242)] int seed,
+        [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length,
         [ValueSource(nameof(Deltas))] int maxDelta
     )
     {
-        var values = RandomIncreasingRange(new Random(seed), length, maxDelta).ToArray();
+        T[] values = RandomIncreasingRange(new Random(seed), start, length, maxDelta).ToArray();
         Verify(values);
     }
 
@@ -83,21 +91,23 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
     [Combinatorial]
     public void Increasing_Random_Negative(
         [Values(42, 4242, 424242)] int seed,
+        [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length,
         [ValueSource(nameof(Deltas))] int maxDelta
     )
     {
-        var values = RandomIncreasingRange(new Random(seed), length, maxDelta).Reverse().Select(x => -x).ToArray();
+        T[] values = RandomIncreasingRange(new Random(seed), start, length, maxDelta).Reverse().Select(x => -x).ToArray();
         Verify(values);
     }
 
     [Test]
     [Combinatorial]
     public void Decreasing_Consecutive(
+        [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length
     )
     {
-        var values = Enumerable.Range(0, length).Reverse().ToArray();
+        T[] values = Range(start, length).Reverse().ToArray();
         Verify(values);
     }
 
@@ -105,31 +115,43 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
     [Combinatorial]
     public void Decreasing_Random(
         [Values(42, 4242, 424242)] int seed,
+        [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length,
         [ValueSource(nameof(Deltas))] int maxDelta
     )
     {
-        var values = RandomIncreasingRange(new(42), length, maxDelta).Reverse().ToArray();
+        T[] values = RandomIncreasingRange(new Random(seed), start, length, maxDelta).Reverse().ToArray();
         Verify(values);
     }
 
-    private static IEnumerable<int> RandomIncreasingRange(Random random, int length, int maxDelta)
+    private static IEnumerable<T> Range(T start, int length)
     {
-        var value = 0;
+        for (T i = start; i < checked(start + T.CreateChecked(length)); i++)
+            yield return i;
+    }
+
+    private static IEnumerable<T> RandomIncreasingRange(Random random, T start, int length, int maxDelta)
+    {
+        T value = start;
+
         for (var i = 0; i < length; i++)
         {
-            value += random.Next(maxDelta);
+            try
+            {
+                value = checked(value + T.CreateChecked(random.Next(maxDelta)));
+            }
+            catch (OverflowException)
+            {
+                Assert.Ignore("Range overflow");
+            }
+
             yield return value;
         }
     }
 
-    public delegate nuint CompressFunc(ReadOnlySpan<int> @in, nuint n, Span<byte> @out);
-
-    public delegate nuint DecompressFunc(ReadOnlySpan<byte> @in, nuint n, Span<int> @out);
-
-    private void Verify(int[] values)
+    private void Verify(T[] values)
     {
-        if (!TurboPFor.Supports256Blocks && algorithm.Name.Contains("256"))
+        if (!TurboPFor.Supports256Blocks && algorithm.BlockSize == 256)
             Assert.Ignore("256 blocks are not supported on this platform.");
 
         var compressed = Compress(values, algorithm.Compress);
@@ -138,25 +160,26 @@ public class TurboPForTests(TurboPForTests.Algorithm algorithm)
         Assert.That(decompressed, Is.EqualTo(values));
     }
 
-    private static byte[] Compress(int[] values, CompressFunc compressFunc)
+    private static byte[] Compress(T[] values, CompressFunc compressFunc)
     {
-        var buffer = new byte[values.Length * sizeof(int) + 1024];
+        var buffer = new byte[values.Length * TBytes + 1024];
 
-        var resultLength = (int) compressFunc(values, (nuint) values.Length, buffer);
+        var resultLength = (int)compressFunc(values, (nuint)values.Length, buffer);
 
-        TestContext.Out.WriteLine($"Compressed: {resultLength} bytes");
+        TestContext.Out.WriteLine($"Compressed: {values.Length * TBytes} -> {resultLength} bytes");
         return buffer[..resultLength];
     }
 
-    private static int[] Decompress(byte[] data, int count, DecompressFunc decompressFunc)
+    private static T[] Decompress(byte[] data, int count, DecompressFunc decompressFunc)
     {
-        var buffer = new int[count + 1];
+        var buffer = new T[count + 1];
+        Array.Fill(buffer, -T.One, count, buffer.Length - count);
+
+        _ = decompressFunc(data, (nuint)count, buffer);
+
+        // Verify bytes outside the decompressed range are not touched.
         for (var i = count; i < buffer.Length; i++)
-            buffer[i] = -1;
-
-        _ = decompressFunc(data, (nuint) count, buffer);
-
-        for (var i = count; i < buffer.Length; i++) Assert.That(buffer[i], Is.EqualTo(-1));
+            Assert.That(buffer[i], Is.EqualTo(-T.One));
 
         return buffer[..count];
     }
