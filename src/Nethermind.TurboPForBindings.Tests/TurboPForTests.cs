@@ -88,7 +88,6 @@ public abstract class TurboPForTestsBase<T>(TurboPForTestsBase<T>.Algorithm algo
     }
 
     [Test]
-    [Combinatorial]
     public void Increasing_Random_Negative(
         [Values(42, 4242, 424242)] int seed,
         [ValueSource(nameof(Starts))] T start,
@@ -101,7 +100,6 @@ public abstract class TurboPForTestsBase<T>(TurboPForTestsBase<T>.Algorithm algo
     }
 
     [Test]
-    [Combinatorial]
     public void Decreasing_Consecutive(
         [ValueSource(nameof(Starts))] T start,
         [ValueSource(nameof(Lengths))] int length
@@ -112,7 +110,6 @@ public abstract class TurboPForTestsBase<T>(TurboPForTestsBase<T>.Algorithm algo
     }
 
     [Test]
-    [Combinatorial]
     public void Decreasing_Random(
         [Values(42, 4242, 424242)] int seed,
         [ValueSource(nameof(Starts))] T start,
