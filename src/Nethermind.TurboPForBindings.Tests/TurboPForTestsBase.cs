@@ -24,7 +24,7 @@ public abstract class TurboPForTestsBase<T>(TurboPForTestsBase<T>.Algorithm algo
 
     private static IEnumerable<T> Starts()
     {
-        T half = T.MaxValue / T.CreateChecked(2);
+        T half = T.MaxValue >> 1;
         T halfSize = T.MaxValue >> (TBits / 2);
 
         yield return T.Zero;
