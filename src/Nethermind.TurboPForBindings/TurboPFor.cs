@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Loader;
@@ -26,9 +26,29 @@ namespace Nethermind.TurboPForBindings
         public static partial nuint p4nd1dec128v32(ReadOnlySpan<byte> @in, nuint n, Span<int> @out);
 
         [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1enc128v32(ReadOnlySpan<uint> @in, nuint n, Span<byte> @out);
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1dec128v32(ReadOnlySpan<byte> @in, nuint n, Span<uint> @out);
+
+        [LibraryImport(LibraryName)]
         public static partial nuint p4nd1enc256v32(ReadOnlySpan<int> @in, nuint n, Span<byte> @out);
         [LibraryImport(LibraryName)]
         public static partial nuint p4nd1dec256v32(ReadOnlySpan<byte> @in, nuint n, Span<int> @out);
+
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1enc256v32(ReadOnlySpan<uint> @in, nuint n, Span<byte> @out);
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1dec256v32(ReadOnlySpan<byte> @in, nuint n, Span<uint> @out);
+
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1enc64(ReadOnlySpan<long> @in, nuint n, Span<byte> @out);
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1dec64(ReadOnlySpan<byte> @in, nuint n, Span<long> @out);
+
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1enc64(ReadOnlySpan<ulong> @in, nuint n, Span<byte> @out);
+        [LibraryImport(LibraryName)]
+        public static partial nuint p4nd1dec64(ReadOnlySpan<byte> @in, nuint n, Span<ulong> @out);
 
         private static IntPtr OnResolvingUnmanagedDll(Assembly context, string name)
         {
