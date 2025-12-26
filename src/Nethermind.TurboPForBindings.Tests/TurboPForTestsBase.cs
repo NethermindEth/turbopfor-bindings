@@ -27,6 +27,13 @@ public abstract class TurboPForTestsBase<T>(TurboPForTestsBase<T>.Algorithm algo
         T half = T.MaxValue >> 1;
         T halfSize = T.MaxValue >> (TBits / 2);
 
+        if (T.IsNegative(T.MinValue))
+        {
+            yield return T.MinValue + halfSize;
+            yield return -half;
+            yield return -halfSize;
+        }
+
         yield return T.Zero;
         yield return halfSize;
         yield return half;
