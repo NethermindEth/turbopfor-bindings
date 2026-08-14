@@ -11,10 +11,10 @@ on:
     inputs:
       publish:
         description: Publish to NuGet
-        default: None
+        default: 'No'
         type: choice
         options:
-          - "No"
+          - 'No'
           - Staging
           - Production
 
@@ -32,12 +32,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           lfs: true
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
 
       - name: Test
         working-directory: src/Nethermind.TurboPForBindings.Tests
@@ -46,21 +46,33 @@ jobs:
   publish:
     name: Publish
     needs: test
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.publish != 'No' || github.event_name == 'release'
+    if: github.event_name == 'workflow_dispatch' && inputs.publish != 'No' || github.event_name == 'release'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      NUGET_HOST: ${{ inputs.publish == 'Staging' && 'https://int.nugettest.org' || 'https://www.nuget.org' }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           lfs: true
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
+
+      - name: NuGet login
+        uses: nuget/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+          audience: ${{ env.NUGET_HOST }}
+          token-service-url: ${{ env.NUGET_HOST }}/api/v2/token
 
       - name: Publish
         working-directory: src
         run: |
           dotnet pack ./Nethermind.TurboPForBindings -c release
           dotnet nuget push ./artifacts/package/release/*.nupkg \
-            -k ${{ github.event.inputs.publish == 'Staging' && secrets.NUGETTEST_API_KEY || secrets.NUGET_API_KEY }} \
-            -s ${{ github.event.inputs.publish == 'Staging' && 'https://apiint.nugettest.org/v3/index.json' || 'https://api.nuget.org/v3/index.json' }}
+            -k "${{ steps.login.outputs.NUGET_API_KEY }}" -s ${{ env.NUGET_HOST }}/api/v2/package
