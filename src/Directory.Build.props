@@ -14,7 +14,8 @@
   <PropertyGroup Label="ProductInfo">
     <Authors>Nethermind</Authors>
     <Copyright>Demerzel Solutions Limited</Copyright>
-    <Version>1.0.0</Version>
+    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
   </PropertyGroup>
 
 </Project>
