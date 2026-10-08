@@ -117,12 +117,16 @@ jobs:
         run: make ic.dll
 
       # The makefile assumes GCC on x86-64 for Windows, so override both.
+      # Recent clang versions treat these diagnostics as errors by default;
+      # they don't affect codegen.
       # Static linking avoids a dependency on the MSYS2 runtime DLLs.
       - name: Build
         if: matrix.arch == 'arm64'
         working-directory: turbopfor
         shell: msys2 {0}
-        run: make ic.dll CC=clang ARCH=aarch64 LDFLAGS=-static
+        run: >-
+          make ic.dll ARCH=aarch64 LDFLAGS=-static
+          CC="clang -Wno-incompatible-pointer-types -Wno-incompatible-function-pointer-types -Wno-int-conversion"
 
       - name: Verify
         if: matrix.arch == 'arm64'
