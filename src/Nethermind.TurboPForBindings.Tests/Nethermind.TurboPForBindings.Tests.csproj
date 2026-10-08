@@ -22,6 +22,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="GoldenVectors.json" LogicalName="GoldenVectors.json" />
+    </ItemGroup>
+
+    <ItemGroup>
       <ProjectReference Include="..\Nethermind.TurboPForBindings\Nethermind.TurboPForBindings.csproj" />
     </ItemGroup>
 
