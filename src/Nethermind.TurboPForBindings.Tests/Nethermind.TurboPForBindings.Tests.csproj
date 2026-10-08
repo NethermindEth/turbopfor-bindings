@@ -3,8 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <EnableNUnitRunner>true</EnableNUnitRunner>
-    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-    <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     <IsPackable>false</IsPackable>
     <RootNamespace>Nethermind.TurboPForBindings.Tests</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
