@@ -10,7 +10,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <PackageId>Nethermind.TurboPForBindings</PackageId>
-    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT AND GPL-2.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://nethermind.io</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>compression</PackageTags>
@@ -42,6 +42,7 @@
 
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="../../THIRD-PARTY-NOTICES" Pack="true" PackagePath="/" />
   </ItemGroup>
 
   <ItemGroup>
