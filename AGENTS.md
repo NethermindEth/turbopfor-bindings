@@ -18,6 +18,7 @@ C# bindings for TurboPFor. See [global.json](./global.json) and [src](./src/) di
 - Use conventional commits; keep scoped and imperative.
 - Keep the native binaries under `src/Nethermind.TurboPForBindings/runtimes/` in sync with a single TurboPFor revision (currently [da4fa61](https://github.com/powturbo/TurboPFor-Integer-Compression/tree/da4fa61f6dedee61a3c0c624fc8656d84b820392)); they are Git LFS objects built only by [build-turbopfor.yml](./.github/workflows/build-turbopfor.yml), so do not edit or rebuild them locally.
 - Keep the P/Invoke signatures in sync with the TurboPFor headers of the shipped binaries.
+- When updating the TurboPFor revision, the new binaries must decode the existing [golden vectors](./src/Nethermind.TurboPForBindings.Tests/GoldenVectors.json) on all platforms. Only then regenerate them with `dotnet run -c release -- --filter "Name=Regenerate_golden_vectors"` from the test project directory, and update the revision in [TurboPForGoldenVectorTests.cs](./src/Nethermind.TurboPForBindings.Tests/TurboPForGoldenVectorTests.cs).
 - Prefer the latest versions of GitHub Actions and runners.
 - Update [THIRD-PARTY-NOTICES](./THIRD-PARTY-NOTICES) when introducing a dependency if needed.
 - Keep [AGENTS.md](./AGENTS.md) in sync with the ongoing development.
