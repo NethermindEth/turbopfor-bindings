@@ -10,7 +10,7 @@ index 6dc5af8..650b8e3 100644
 +	$(CC) -dynamiclib $+ -o $@
 +
 +ic.dll : $(LIB)
-+	$(CC) -shared -Wl,--out-implib,ic.lib $+ -o $@
++	$(CC) -shared -Wl,--out-implib,ic.lib $+ $(LDFLAGS) -o $@
 +
  JAVA_SUBDIR = java
  

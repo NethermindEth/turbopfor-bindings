@@ -84,7 +84,7 @@ jobs:
     name: Windows build
     strategy:
       matrix:
-        arch: [x64]
+        arch: [arm64, x64]
     runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-2022' }}
     steps:
       - name: Check out TurboPFor repository
@@ -103,9 +103,42 @@ jobs:
         working-directory: turbopfor
         run: git apply ../bindings/makefile.patch
 
+      - name: Set up MSYS2
+        if: matrix.arch == 'arm64'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: CLANGARM64
+          install: make
+          pacboy: clang:p
+
       - name: Build
+        if: matrix.arch == 'x64'
         working-directory: turbopfor
         run: make ic.dll
+
+      # The makefile assumes GCC on x86-64 for Windows, so override both.
+      # Static linking avoids a dependency on the MSYS2 runtime DLLs.
+      - name: Build
+        if: matrix.arch == 'arm64'
+        working-directory: turbopfor
+        shell: msys2 {0}
+        run: make ic.dll CC=clang ARCH=aarch64 LDFLAGS=-static
+
+      - name: Verify
+        if: matrix.arch == 'arm64'
+        working-directory: turbopfor
+        shell: msys2 {0}
+        run: |
+          clang -march=armv8-a -dM -E -x c /dev/null | grep -q '#define __ARM_NEON 1' \
+            || { echo "::error::__ARM_NEON is not defined"; exit 1; }
+          llvm-readobj --file-headers ic.dll | grep -q IMAGE_FILE_MACHINE_ARM64 \
+            || { echo "::error::ic.dll is not an ARM64 image"; exit 1; }
+          deps=$(llvm-objdump -p ic.dll | sed -n 's/^[[:space:]]*DLL Name: //p')
+          echo "$deps"
+          if echo "$deps" | grep -viqE '^(kernel32|ucrtbase|msvcrt|api-ms-win-crt-.+)\.dll$'; then
+            echo "::error::ic.dll depends on non-system DLLs"
+            exit 1
+          fi
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -123,6 +156,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v5
+        with:
+          lfs: true
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
@@ -136,7 +171,7 @@ jobs:
           mv -f linux-x64/libic.so linux-x64/native/libic.so
           mv -f osx-arm64/libic.dylib osx-arm64/native/libic.dylib
           mv -f osx-x64/libic.dylib osx-x64/native/libic.dylib
-          # mv -f win-arm64/ic.dll win-arm64/native/ic.dll
+          mv -f win-arm64/ic.dll win-arm64/native/ic.dll
           mv -f win-x64/ic.dll win-x64/native/ic.dll
 
       - name: Create a pull request
