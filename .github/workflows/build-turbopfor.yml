@@ -29,7 +29,7 @@ jobs:
     runs-on: ${{ matrix.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-22.04' }}
     steps:
       - name: Check out TurboPFor repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: powturbo/TurboPFor-Integer-Compression
           ref: ${{ github.event.inputs.ref }}
@@ -38,7 +38,7 @@ jobs:
         run: make libic.so
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-${{ matrix.arch }}
           path: libic.so
@@ -53,14 +53,14 @@ jobs:
     runs-on: ${{ matrix.arch == 'arm64' && 'macos-latest' || 'macos-15-large' }}
     steps:
       - name: Check out TurboPFor repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: powturbo/TurboPFor-Integer-Compression
           ref: ${{ github.event.inputs.ref }}
           path: turbopfor
 
       - name: Check out turbopfor-bindings repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           path: bindings
 
@@ -73,7 +73,7 @@ jobs:
         run: make libic.dylib
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: osx-${{ matrix.arch }}
           path: turbopfor/libic.dylib
@@ -89,14 +89,14 @@ jobs:
     runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-2022' }}
     steps:
       - name: Check out TurboPFor repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: powturbo/TurboPFor-Integer-Compression
           ref: ${{ github.event.inputs.ref }}
           path: turbopfor
 
       - name: Check out turbopfor-bindings repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           path: bindings
 
@@ -146,7 +146,7 @@ jobs:
           fi
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: win-${{ matrix.arch }}
           path: turbopfor/ic.dll
@@ -160,12 +160,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           lfs: true
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: src/Nethermind.TurboPForBindings/runtimes
 
@@ -183,11 +183,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          head_branch=feature/mcl-build-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          head_branch=feature/turbopfor-build-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT
+          title="chore(deps): update TurboPFor binaries to ${REF#v}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b $head_branch
           git add -A
           git commit -am "Update TurboPFor binaries"
           git push origin $head_branch
-          gh pr create -B $GITHUB_REF_NAME -H $head_branch -t "Update TurboPFor binaries" -b "Built and updated TurboPFor binaries"
+          gh pr create -B $GITHUB_REF_NAME -H $head_branch -t "$title" -b "Built from TurboPFor $REF."
