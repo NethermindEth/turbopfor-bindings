@@ -83,6 +83,7 @@ jobs:
   build-windows:
     name: Windows build
     strategy:
+      fail-fast: false
       matrix:
         arch: [arm64, x64]
     runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-2022' }}
@@ -111,14 +112,14 @@ jobs:
           install: make
           pacboy: clang:p
 
+      # Recent GCC and clang versions treat these diagnostics as errors by
+      # default; they don't affect codegen.
       - name: Build
         if: matrix.arch == 'x64'
         working-directory: turbopfor
-        run: make ic.dll
+        run: make ic.dll CC="gcc -Wno-incompatible-pointer-types -Wno-int-conversion"
 
       # The makefile assumes GCC on x86-64 for Windows, so override both.
-      # Recent clang versions treat these diagnostics as errors by default;
-      # they don't affect codegen.
       # Static linking avoids a dependency on the MSYS2 runtime DLLs.
       - name: Build
         if: matrix.arch == 'arm64'
