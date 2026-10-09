@@ -51,6 +51,9 @@ jobs:
       matrix:
         arch: [arm64, x64]
     runs-on: ${{ matrix.arch == 'arm64' && 'macos-latest' || 'macos-26-intel' }}
+    env:
+      # The minimum macOS version supported by .NET 10
+      MACOSX_DEPLOYMENT_TARGET: '15.0'
     steps:
       - name: Check out TurboPFor repository
         uses: actions/checkout@v7
@@ -71,6 +74,13 @@ jobs:
       - name: Build
         working-directory: turbopfor
         run: make libic.dylib
+
+      - name: Verify
+        working-directory: turbopfor
+        run: |
+          vtool -show-build libic.dylib
+          vtool -show-build libic.dylib | grep -qE "minos $MACOSX_DEPLOYMENT_TARGET$" \
+            || { echo "::error::libic.dylib minos is not $MACOSX_DEPLOYMENT_TARGET"; exit 1; }
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
@@ -182,6 +192,7 @@ jobs:
       - name: Create a pull request
         env:
           GH_TOKEN: ${{ github.token }}
+          REF: ${{ inputs.ref }}
         run: |
           head_branch=feature/turbopfor-build-$GITHUB_RUN_NUMBER-$GITHUB_RUN_ATTEMPT
           title="chore(deps): update TurboPFor binaries to ${REF#v}"
