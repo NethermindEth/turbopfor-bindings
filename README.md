@@ -1,4 +1,4 @@
-# turbopfor-bindings
+# TurboPFor bindings
 
 [![Tests](https://github.com/nethermindeth/turbopfor-bindings/actions/workflows/test-publish.yml/badge.svg)](https://github.com/nethermindeth/turbopfor-bindings/actions/workflows/test-publish.yml)
 [![Nethermind.TurboPForBindings](https://img.shields.io/nuget/v/Nethermind.TurboPForBindings)](https://www.nuget.org/packages/Nethermind.TurboPForBindings)
