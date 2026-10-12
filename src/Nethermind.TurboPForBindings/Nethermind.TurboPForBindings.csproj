@@ -11,7 +11,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <PackageId>Nethermind.TurboPForBindings</PackageId>
     <PackageLicenseExpression>MIT AND GPL-2.0-or-later</PackageLicenseExpression>
-    <PackageProjectUrl>https://nethermind.io</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/NethermindEth/turbopfor-bindings</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>compression</PackageTags>
     <RepositoryType>git</RepositoryType>
